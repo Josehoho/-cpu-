@@ -1,0 +1,41 @@
+import psutil 
+import os
+import time
+def check_server_health(): 
+    # 获取磁盘使用情况
+    disk_usage = psutil.disk_usage('/')
+    print(f'Disk Usage: Total={disk_usage.total}B, Used={disk_usage.used}B, Free={disk_usage.free}B, Percent={disk_usage.percent}%')
+
+    # 获取内存使用情况
+    memory = psutil.virtual_memory()
+    print(f'Memory Usage: Total={memory.total}B, Available={memory.available}B, Used={memory.used}B, Percent={memory.percent}%')
+
+    # 获取CPU使用率
+    cpu_percent = psutil.cpu_percent(interval=1)
+    print(f'CPU Usage: {cpu_percent}%')
+
+if __name__ == "__main__":
+    while True:
+        check_server_health()
+        print('-' * 30)
+        time.sleep(120) #多久检测一次
+
+cpu_threshold =100 #cpu阀值
+
+def check_cpu_usage():
+    cpu_percent = psutil.cpu_percent(interval=1)
+    if cpu_percent > cpu_threshold:
+        return True
+    return False
+
+def restart_computer():
+    if os.name == 'posix':  # 如果在类 Unix 系统上
+        os.system('reboot')
+    elif os.name == 'nt':  # 如果在 Windows 上
+        os.system('shutdown /r /t 1')
+if __name__ == "__main__":
+    if check_cpu_usage():
+        print("CPU 使用率超过100%，将重启电脑...")
+        restart_computer()
+    else:
+        print("CPU 使用率正常。")
